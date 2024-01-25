@@ -7,11 +7,12 @@ import ErrorBlock from '../UI/ErrorBlock';
 
 export default function FindEventSection() {
   const searchElement = useRef();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState();
 
-  const { data, isPending, isError, error } = useQuery({  
+  const { data, isLoading, isError, error } = useQuery({  
     queryKey: ['events', {search: searchTerm}], // queryKey is an array of values that uniquely identifies the query
     queryFn: ({ signal }) => fetchEvents({signal, searchTerm}), // queryFn is a function that returns a promise
+    enabled: searchTerm !== undefined, // enabled is a boolean that determines if the query should be executed
   });
 
   function handleSubmit(event) {
@@ -19,9 +20,9 @@ export default function FindEventSection() {
     setSearchTerm(searchElement.current.value);
   }
 
-  let content = <p>Found no events.</p>;
+  let content = <p>Please enter a search term and to find events.</p>;
 
-  if (isPending) {
+  if (isLoading) {
     content = <LoadingIndicator />; 
   }
 
@@ -54,7 +55,6 @@ export default function FindEventSection() {
           <button>Search</button>
         </form>
       </header>
-      <p>Please enter a search term and to find events.</p>
       {content}
     </section>
   );
