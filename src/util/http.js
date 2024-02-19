@@ -3,7 +3,6 @@ import { QueryClient } from '@tanstack/react-query';
 export const queryClient = new QueryClient();
 
 export async function fetchEvents({ signal, searchTerm }) {
-  console.log(searchTerm);
   let url = 'http://localhost:3000/events';
 
   if (searchTerm) {
@@ -63,8 +62,6 @@ export async function fetchSelectableImages({ signal }) {
 
 export async function fetchEvent({ id, signal }) {
 
-  console.log(id);
-
   const response = await fetch(`http://localhost:3000/events/${id}`, { signal });
 
   if (!response.ok) {
@@ -81,6 +78,9 @@ export async function fetchEvent({ id, signal }) {
 
 
 export async function deleteEvent({ id }) {
+
+  console.log(id);
+
   const response = await fetch(`http://localhost:3000/events/${id}`, {
     method: 'DELETE',
   });
