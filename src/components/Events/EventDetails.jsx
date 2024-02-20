@@ -20,7 +20,10 @@ export default function EventDetails() {
   const { mutate } = useMutation({
     mutationFn: deleteEvent,
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ 
+        queryKey: ['events'],
+        refetchType: 'none'  
+      });
       navigate('../');
     }
   });
