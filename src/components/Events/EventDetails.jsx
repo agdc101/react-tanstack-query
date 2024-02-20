@@ -17,7 +17,7 @@ export default function EventDetails() {
   });
 
   const { mutate } = useMutation({
-    mutationFn: ({ signal }) => deleteEvent({id}),
+    mutationFn: () => deleteEvent({id}),
     onSuccess: (data) => {
       console.log('Mutation succeeded with result:', data);
       queryClient.invalidateQueries({ queryKey: ['event', id] });
