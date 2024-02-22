@@ -1,10 +1,10 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import Modal from '../UI/Modal.jsx';
 import EventForm from './EventForm.jsx';
-import { fetchEvent } from '../../util/http.js';
 import LoadingIndicator from '../UI/LoadingIndicator.jsx';
 import ErrorBlock from '../UI/ErrorBlock.jsx';
+import { updateEvent, fetchEvent, queryClient } from '../../util/http.js';
 
 
 export default function EditEvent() {
@@ -16,9 +16,37 @@ export default function EditEvent() {
     queryFn: ({signal}) => fetchEvent({signal, id}),
   });
 
-  function handleSubmit(formData) {}
+  const { mutate } = useMutation({
+    mutationFn: updateEvent,
+    onMutate: async (newData) => {
+      // Cancel any outgoing refetches for this event. to make sure we don't fetch old data
+      queryClient.cancelQueries(['events', id]);
+
+      // Snapshot the previous value
+      const previousEvent = queryClient.getQueryData(['events', id]);
+
+      // Optimistically update the cache with the new event
+      queryClient.setQueryData(['events', id], newData.event);
+
+      // Return a context object with the previous event
+      return { previousEvent };
+    },
+    onError: (error, newData, context) => {
+      // Rollback to the previous value
+      queryClient.setQueryData(['events', id], context.previousEvent);
+    },
+    onSettled: () => {
+      // Invalidate and refetch to make sure we have the latest data
+      queryClient.invalidateQueries(['events', id]);
+    },
+  });
 
   function handleClose() {
+    navigate('../');
+  }
+
+  function handleSubmit(formData) {
+    mutate({ id, event: formData });
     navigate('../');
   }
 
